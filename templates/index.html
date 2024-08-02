@@ -119,7 +119,7 @@
         document.getElementById('results').innerHTML = resultsHtml;
 
         // Generate share text
-        var shareText = `My Weight Calculator Results:\nTraining set (90% of 1RM): ${data.training_set}kg\n`;
+        var shareText = `Training set (90% of 1RM): ${data.training_set}kg\n`;
         for (var i = 0; i < data.sets.length; i++) {
             shareText += `Set ${i+1}: ${data.sets[i][0]} reps at ${data.sets[i][1]}kg\n`;
         }
