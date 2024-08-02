@@ -87,38 +87,55 @@
         <button onclick="calculate()">Calculate</button>
     </div>
     <div id="results"></div>
-
+    <div id="shareButton" style="display: none; margin-top: 20px;">
+        <a id="whatsappShare" href="" target="_blank" style="background-color: #25D366; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+            Share on WhatsApp
+        </a>
+    </div>
     <script>
         function calculate() {
-            var oneRepMax = document.getElementById('one_rep_max').value;
-            if (!oneRepMax) {
-                alert("Please enter your 1 rep max");
-                return;
-            }
+    var oneRepMax = document.getElementById('one_rep_max').value;
+    if (!oneRepMax) {
+        alert("Please enter your 1 rep max");
+        return;
+    }
 
-            fetch('/calculate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'one_rep_max=' + encodeURIComponent(oneRepMax)
-            })
-            .then(response => response.json())
-            .then(data => {
-                var resultsHtml = `<p>Training set (90% of 1RM) = <strong>${data.training_set}kg</strong></p>`;
-                resultsHtml += '<h3>Calculated sets:</h3>';
-                resultsHtml += '<table><tr><th>Set</th><th>Reps</th><th>Weight</th></tr>';
-                for (var i = 0; i < data.sets.length; i++) {
-                    resultsHtml += `<tr><td>${i+1}</td><td>${data.sets[i][0]}</td><td>${data.sets[i][1]}kg</td></tr>`;
-                }
-                resultsHtml += '</table>';
-                document.getElementById('results').innerHTML = resultsHtml;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            });
+    fetch('/calculate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'one_rep_max=' + encodeURIComponent(oneRepMax)
+    })
+    .then(response => response.json())
+    .then(data => {
+        var resultsHtml = `<p>Training set (90% of 1RM) = <strong>${data.training_set}kg</strong></p>`;
+        resultsHtml += '<h3>Calculated sets:</h3>';
+        resultsHtml += '<table><tr><th>Set</th><th>Reps</th><th>Weight</th></tr>';
+        for (var i = 0; i < data.sets.length; i++) {
+            resultsHtml += `<tr><td>${i+1}</td><td>${data.sets[i][0]}</td><td>${data.sets[i][1]}kg</td></tr>`;
         }
+        resultsHtml += '</table>';
+        document.getElementById('results').innerHTML = resultsHtml;
+
+        // Generate share text
+        var shareText = `My Weight Calculator Results:\nTraining set (90% of 1RM): ${data.training_set}kg\n`;
+        for (var i = 0; i < data.sets.length; i++) {
+            shareText += `Set ${i+1}: ${data.sets[i][0]} reps at ${data.sets[i][1]}kg\n`;
+        }
+
+        // Update WhatsApp share link
+        var whatsappLink = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        document.getElementById('whatsappShare').href = whatsappLink;
+
+        // Show share button
+        document.getElementById('shareButton').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
     </script>
 </body>
 </html>
