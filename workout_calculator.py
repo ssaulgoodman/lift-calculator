@@ -1,3 +1,7 @@
+from flask import Flask, render_template, request, jsonify
+
+app = Flask(__name__)
+
 def custom_round(number):
     decimal_part = number % 1
     if decimal_part < 0.5:
@@ -5,28 +9,57 @@ def custom_round(number):
     else:
         return int(number) + 1
 
-def calculate_sets(one_rep_max):
+def calculate_sets(one_rep_max, week):
     training_set = custom_round(0.90 * one_rep_max)
     
-    sets = [
-        (5, custom_round(0.65 * training_set)),
-        (5, custom_round(0.75 * training_set)),
-        (10, custom_round(0.85 * training_set)),
-        (5, custom_round(0.75 * training_set)),
-        (15, custom_round(0.65 * training_set))
-    ]
-    
-    print(f"Your training set (90% of 1RM): {training_set}")
-    print("\nCalculated sets:")
-    for i, (reps, weight) in enumerate(sets, 1):
-        print(f"Set {i}: {reps} reps at {weight}")
+    if week == 1:
+        sets = [
+            (5, custom_round(0.65 * training_set)),
+            (5, custom_round(0.75 * training_set)),
+            (10, custom_round(0.85 * training_set)),
+            (5, custom_round(0.75 * training_set)),
+            (15, custom_round(0.65 * training_set))
+        ]
+    elif week == 2:
+        sets = [
+            (3, custom_round(0.70 * training_set)),
+            (3, custom_round(0.80 * training_set)),
+            (8, custom_round(0.90 * training_set)),
+            (3, custom_round(0.80 * training_set)),
+            (12, custom_round(0.70 * training_set))
+        ]
+    elif week == 3:
+        sets = [
+            (5, custom_round(0.75 * training_set)),
+            (3, custom_round(0.85 * training_set)),
+            (4, custom_round(0.95 * training_set)),
+            (3, custom_round(0.85 * training_set)),
+            (10, custom_round(0.75 * training_set))
+        ]
+    else:
+        return None, None  # Invalid week
 
-def main():
+    return training_set, sets
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
     try:
-        one_rep_max = float(input("Enter your 1 rep max: "))
-        calculate_sets(one_rep_max)
-    except ValueError:
-        print("Please enter a valid number for your 1 rep max.")
+        one_rep_max = float(request.form['one_rep_max'])
+        week = int(request.form['week'])
+        training_set, sets = calculate_sets(one_rep_max, week)
+        if training_set is None:
+            return jsonify({'error': 'Invalid week selected'}), 400
+        return jsonify({
+            'training_set': training_set,
+            'sets': sets,
+            'week': week
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app.run(debug=True)
