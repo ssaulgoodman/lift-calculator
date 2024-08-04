@@ -9,17 +9,36 @@ def custom_round(number):
     else:
         return int(number) + 1
 
-def calculate_sets(one_rep_max):
+def calculate_sets(one_rep_max, week):
     training_set = custom_round(0.90 * one_rep_max)
     
-    sets = [
-        (5, custom_round(0.65 * training_set)),
-        (5, custom_round(0.75 * training_set)),
-        (10, custom_round(0.85 * training_set)),
-        (5, custom_round(0.75 * training_set)),
-        (15, custom_round(0.65 * training_set))
-    ]
-    
+    if week == 1:
+        sets = [
+            (5, custom_round(0.65 * training_set)),
+            (5, custom_round(0.75 * training_set)),
+            (10, custom_round(0.85 * training_set)),
+            (5, custom_round(0.75 * training_set)),
+            (15, custom_round(0.65 * training_set))
+        ]
+    elif week == 2:
+        sets = [
+            (3, custom_round(0.70 * training_set)),
+            (3, custom_round(0.80 * training_set)),
+            (8, custom_round(0.90 * training_set)),
+            (3, custom_round(0.80 * training_set)),
+            (12, custom_round(0.70 * training_set))
+        ]
+    elif week == 3:
+        sets = [
+            (5, custom_round(0.75 * training_set)),
+            (3, custom_round(0.85 * training_set)),
+            (4, custom_round(0.95 * training_set)),
+            (3, custom_round(0.85 * training_set)),
+            (10, custom_round(0.75 * training_set))
+        ]
+    else:
+        return None, None  # Invalid week
+
     return training_set, sets
 
 @app.route('/')
@@ -30,10 +49,14 @@ def index():
 def calculate():
     try:
         one_rep_max = float(request.form['one_rep_max'])
-        training_set, sets = calculate_sets(one_rep_max)
+        week = int(request.form['week'])
+        training_set, sets = calculate_sets(one_rep_max, week)
+        if training_set is None:
+            return jsonify({'error': 'Invalid week selected'}), 400
         return jsonify({
             'training_set': training_set,
-            'sets': sets
+            'sets': sets,
+            'week': week
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
