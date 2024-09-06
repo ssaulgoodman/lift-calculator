@@ -9,8 +9,9 @@ def custom_round(number):
     else:
         return int(number) + 1
 
-def calculate_sets(one_rep_max, week):
-    training_set = custom_round(0.90 * one_rep_max)
+def calculate_sets(one_rep_max, week, cycle):
+    cycle_percentages = {1: 0.90, 2: 0.95, 3: 1.00}
+    training_set = custom_round(cycle_percentages[cycle] * one_rep_max)
     
     if week == 1:
         sets = [
@@ -50,13 +51,15 @@ def calculate():
     try:
         one_rep_max = float(request.form['one_rep_max'])
         week = int(request.form['week'])
-        training_set, sets = calculate_sets(one_rep_max, week)
+        cycle = int(request.form['cycle'])
+        training_set, sets = calculate_sets(one_rep_max, week, cycle)
         if training_set is None:
-            return jsonify({'error': 'Invalid week selected'}), 400
+            return jsonify({'error': 'Invalid week or cycle selected'}), 400
         return jsonify({
             'training_set': training_set,
             'sets': sets,
-            'week': week
+            'week': week,
+            'cycle': cycle
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400

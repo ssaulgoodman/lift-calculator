@@ -76,6 +76,13 @@
         </select>
     </div>
     <div class="input-group">
+        <select id="cycle">
+            <option value="1">Cycle 1 (90% of 1RM)</option>
+            <option value="2">Cycle 2 (95% of 1RM)</option>
+            <option value="3">Cycle 3 (100% of 1RM)</option>
+        </select>
+    </div>
+    <div class="input-group">
         <button onclick="calculate()">Calculate</button>
     </div>
     <div id="results"></div>
@@ -84,6 +91,7 @@
         function calculate() {
             var oneRepMax = document.getElementById('one_rep_max').value;
             var week = document.getElementById('week').value;
+            var cycle = document.getElementById('cycle').value;
             if (!oneRepMax) {
                 alert("Please enter your 1 rep max");
                 return;
@@ -94,12 +102,13 @@
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'one_rep_max=' + encodeURIComponent(oneRepMax) + '&week=' + encodeURIComponent(week)
+                body: 'one_rep_max=' + encodeURIComponent(oneRepMax) + '&week=' + encodeURIComponent(week) + '&cycle=' + encodeURIComponent(cycle)
             })
             .then(response => response.json())
             .then(data => {
-                var resultsHtml = `<h2>Results for Week ${data.week}:</h2>`;
-                resultsHtml += `<p>Training set (90% of 1RM) = <strong>${data.training_set}kg</strong></p>`;
+                var cyclePercentages = {1: 90, 2: 95, 3: 100};
+                var resultsHtml = `<h2>Results for Week ${data.week}, Cycle ${data.cycle}:</h2>`;
+                resultsHtml += `<p>Training set (${cyclePercentages[data.cycle]}% of 1RM) = <strong>${data.training_set}kg</strong></p>`;
                 resultsHtml += '<h3>Calculated sets:</h3>';
                 resultsHtml += '<table><tr><th>Set</th><th>Reps</th><th>Weight</th></tr>';
                 for (var i = 0; i < data.sets.length; i++) {
